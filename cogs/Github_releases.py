@@ -24,8 +24,8 @@ class Github_releases(commands.Cog):
         """Track new releases from a specified GitHub repository."""
         try:
             # Get the GitHub token from the database
-            github_token = await self.get_github_token(interaction.user.name)
-            github_client = Github(github_token)  # Initialize GitHub client here
+            self.github_token = await self.get_github_token(interaction.user.name)
+            self.github_client = Github(self.github_token)  # Initialize GitHub client here
             
             # Check if the repository is already in the collection
             existing_entry = self.release_trackers_collection.find_one({"repo": repo})
@@ -37,6 +37,7 @@ class Github_releases(commands.Cog):
             self.release_trackers_collection.insert_one({
                 "repo": repo,
                 "channel_id": channel.id,
+                "user":interaction.user.name,
                 "last_release_id": None
             })
             
@@ -53,11 +54,11 @@ class Github_releases(commands.Cog):
                 repo = entry["repo"]
                 channel_id = entry["channel_id"]
                 last_release_id = entry.get("last_release_id")
-
-                # Initialize GitHub client for each iteration
-                github_token = await self.get_github_token("your_default_user_name")  # Adjust as needed
-                github_client = Github(github_token)
-                repository = github_client.get_repo(repo)
+                user=entry.get("user")
+                
+                self.github_token = await self.get_github_token(user)
+                self.github_client = Github(self.github_token)
+                repository = self.github_client.get_repo(repo)
                 
                 releases = repository.get_releases()
                 

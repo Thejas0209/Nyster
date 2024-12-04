@@ -11,7 +11,7 @@ class Github_commits(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.DB = Getdb()  # Connect to the MongoDB database
-        self.commits_trackers_collection = self.DB["CommitTracker"]  # Collection for tracking commit information
+        self.commits_trackers_collection = self.DB["CommitTrackers"]  # Collection for tracking commit information
         self.github_token = None
         self.github_client = None
         self.check_new_commits.start()  # Start the periodic task
@@ -60,20 +60,22 @@ class Github_commits(commands.Cog):
             # Add the repo to the commit trackers collection
             self.commits_trackers_collection.insert_one({
                 "repo": repo,
-                "channel_id": channel.id
+                "channel_id": channel.id,
+                "user": interaction.user.name
             })
             await interaction.response.send_message(f"Now tracking commits for `{repo}` in {channel.mention}.")
         except Exception as e:
             await interaction.response.send_message(f"Failed to set up commit tracking: {str(e)}")
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(seconds=10)
     async def check_new_commits(self):
         try:
             # Iterate through the commit trackers collection
             for entry in self.commits_trackers_collection.find():
                 repo = entry["repo"]
                 channel_id = entry["channel_id"]
-                await self.set_github_client("some_default_user")  # Replace with appropriate user if needed
+                user=entry["user"]
+                await self.set_github_client(user)  # Ensure the client is set
                 
                 # Fetch the repository and its commits
                 repository = self.github_client.get_repo(repo)
@@ -95,7 +97,16 @@ class Github_commits(commands.Cog):
                     )
         except Exception as e:
             print(f"Error posting commits: {e}")
-
+    
+    # Untrack Releases
+    @nextcord.slash_command(name="git-untrack-commits", description="Stop tracking new commits for a repository")
+    async def untrack_commits(self, interaction: nextcord.Interaction, repo: str):
+        result = self.commits_trackers_collection.delete_one({"repo": repo})
+        if result.deleted_count > 0:
+            await interaction.response.send_message(f"Stopped tracking new commits for `{repo}`.")
+        else:
+            await interaction.response.send_message(f"`{repo}` is not currently being tracked.")
+            
     @check_new_commits.before_loop
     async def before_check_new_commits(self):
         await self.bot.wait_until_ready()
