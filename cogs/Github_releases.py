@@ -6,7 +6,7 @@ from DBConnect import Getdb
 class Github_releases(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.DB = Getdb()  # Assuming Getdb() connects to your MongoDB database
+        self.DB = Getdb("GithubDB")  # Assuming Getdb() connects to your MongoDB database
         self.release_trackers_collection = self.DB["ReleaseTrackers"]  # Collection for tracking information
         self.check_new_releases.start()  # Start the periodic task
 
@@ -19,8 +19,8 @@ class Github_releases(commands.Cog):
             raise ValueError("GitHub token not found for the user.")
     
     # Track New Releases
-    @nextcord.slash_command(name="git-track-releases", description="Set up notifications for new releases on a repository")
-    async def track_releases(self, interaction: nextcord.Interaction, repo: str, channel: nextcord.TextChannel):
+    @nextcord.slash_command(name="github-track-releases", description="Set up notifications for new releases on a repository")
+    async def github_track_releases(self, interaction: nextcord.Interaction, repo: str, channel: nextcord.TextChannel):
         """Track new releases from a specified GitHub repository."""
         try:
             # Get the GitHub token from the database
@@ -87,8 +87,8 @@ class Github_releases(commands.Cog):
         await self.bot.wait_until_ready()
 
     # Untrack Releases
-    @nextcord.slash_command(name="git-untrack-releases", description="Stop tracking new releases for a repository")
-    async def untrack_releases(self, interaction: nextcord.Interaction, repo: str):
+    @nextcord.slash_command(name="github-untrack-releases", description="Stop tracking new releases for a repository")
+    async def github_untrack_releases(self, interaction: nextcord.Interaction, repo: str):
         result = self.release_trackers_collection.delete_one({"repo": repo})
         if result.deleted_count > 0:
             await interaction.response.send_message(f"Stopped tracking new releases for `{repo}`.")

@@ -7,11 +7,11 @@ from DBConnect import Getdb
 class Github_setup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.DB=Getdb("GithubDB")
+        self.DB=Getdb()
         self.collection=self.DB["UserInfo"]
 
-    @nextcord.slash_command(name="github-setup", description="Collects your github token for usage")
-    async def github_setup(self, interaction: nextcord.Interaction, git_token: str):
+    @nextcord.slash_command(name="gitlab-setup", description="Collects your github token for usage")
+    async def gitlab_setup(self, interaction: nextcord.Interaction, git_token: str):
         """Display information about a specific GitHub repository."""
         try:
             result=self.collection.insert_one({"user":interaction.user.name,"Token":git_token})
@@ -20,8 +20,8 @@ class Github_setup(commands.Cog):
             await interaction.response.send_message("Error with setup",ephemeral=True)
             print(e)
         
-    @nextcord.slash_command(name="github-status", description="Display Setup status")
-    async def github_setup_status(self, interaction: nextcord.Interaction):
+    @nextcord.slash_command(name="gitlab-status", description="Display Setup status")
+    async def gitlab_setup_status(self, interaction: nextcord.Interaction):
         """Display information about a specific GitHub repository."""
         try:
             result=self.collection.find_one({"user":interaction.user.name})
@@ -32,8 +32,8 @@ class Github_setup(commands.Cog):
         except Exception as e:
             await interaction.response.send_message("Error trying to fetch details",ephemeral=True)
     
-    @nextcord.slash_command(name="github-setup-remove", description="Remove your Information if u do not plan to use this commands anymore")
-    async def github_setup_remove(self, interaction: nextcord.Interaction):
+    @nextcord.slash_command(name="gitlab-setup-remove", description="Remove your Information if u do not plan to use this commands anymore")
+    async def gitlab_setup_remove(self, interaction: nextcord.Interaction):
         """Display information about a specific GitHub repository."""
         try:
             result=self.collection.delete_one({"user":interaction.user.name})

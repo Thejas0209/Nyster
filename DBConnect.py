@@ -4,8 +4,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-def Getdb():
-    uri = f"mongodb+srv://{os.getenv('MongoDB_User')}:{os.getenv('MongoDB_pass')}@github-tracker.4uqrj.mongodb.net/?retryWrites=true&w=majority&appName=Github-tracker"
+def Getdb(DB_Name):
+    uri = F"mongodb+srv://{os.getenv('MongoDB_User')}:{os.getenv('MongoDB_pass')}@nyster.4uqrj.mongodb.net/?retryWrites=true&w=majority&appName=Nyster"
 
     # Create a new client and connect to the server
     client = MongoClient(uri, server_api=ServerApi('1'))
@@ -17,5 +17,5 @@ def Getdb():
     except Exception as e:
         print(e)
         
-    db=client["Github-Tracker"]
+    db=client[DB_Name]
     return db

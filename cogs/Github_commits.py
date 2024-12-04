@@ -10,7 +10,7 @@ load_dotenv()
 class Github_commits(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.DB = Getdb()  # Connect to the MongoDB database
+        self.DB = Getdb("GithubDB")  # Connect to the MongoDB database
         self.commits_trackers_collection = self.DB["CommitTrackers"]  # Collection for tracking commit information
         self.github_token = None
         self.github_client = None
@@ -30,8 +30,8 @@ class Github_commits(commands.Cog):
         self.github_client = Github(self.github_token)
 
     # Fetch Latest Commits
-    @nextcord.slash_command(name="git-commits", description="Fetches last 5 commits on the repository")
-    async def commits(self, interaction: nextcord.Interaction, repo: str):
+    @nextcord.slash_command(name="github-commits", description="Fetches last 5 commits on the repository")
+    async def github_commits(self, interaction: nextcord.Interaction, repo: str):
         """Fetch the latest commits from a GitHub repository."""
         try:
             await self.set_github_client(interaction.user.name)  # Ensure the client is set
@@ -47,8 +47,8 @@ class Github_commits(commands.Cog):
         except Exception as e:
             await interaction.response.send_message(f"Failed to fetch commits: {str(e)}")
 
-    @nextcord.slash_command(name="git-track-commits", description="Sends last 5 commits of a repo every 5 mins")
-    async def git_track_commits(self, interaction: nextcord.Interaction, repo: str, channel: nextcord.TextChannel):
+    @nextcord.slash_command(name="github-track-commits", description="Sends last 5 commits of a repo every 5 mins")
+    async def github_track_commits(self, interaction: nextcord.Interaction, repo: str, channel: nextcord.TextChannel):
         try:
             await self.set_github_client(interaction.user.name)  # Ensure the client is set
             # Check if the repo is already being tracked
@@ -99,8 +99,8 @@ class Github_commits(commands.Cog):
             print(f"Error posting commits: {e}")
     
     # Untrack Releases
-    @nextcord.slash_command(name="git-untrack-commits", description="Stop tracking new commits for a repository")
-    async def untrack_commits(self, interaction: nextcord.Interaction, repo: str):
+    @nextcord.slash_command(name="github-untrack-commits", description="Stop tracking new commits for a repository")
+    async def github_untrack_commits(self, interaction: nextcord.Interaction, repo: str):
         result = self.commits_trackers_collection.delete_one({"repo": repo})
         if result.deleted_count > 0:
             await interaction.response.send_message(f"Stopped tracking new commits for `{repo}`.")

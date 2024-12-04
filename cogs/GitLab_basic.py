@@ -1,25 +1,29 @@
 import nextcord
 from nextcord.ext import commands, tasks
 from github import Github
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 from DBConnect import Getdb
 
-class Github_basic(commands.Cog):
+class Gitlab_basic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.DB=Getdb("GithubDB")
-        self.github_token = None
-        self.github_client = None
+        self.DB=Getdb()
+        self.gitlab_token = os.getenv("Gitlab_token")
+        self.gitlab_client = None
         
     # Display Repository Information
-    @nextcord.slash_command(name="github-repo-info", description="Display repository information")
-    async def github_repo_info(self, interaction: nextcord.Interaction, repo: str):
-        """Display information about a specific GitHub repository."""
+    @nextcord.slash_command(name="gitlab-repo-info", description="Display repository information")
+    async def gitlab_repo_info(self, interaction: nextcord.Interaction, repo: str):
+        """Display information about a specific Gitlab repository."""
         self.github_token=self.DB["UserInfo"].find_one({"user":interaction.user.name})["Token"]
         self.github_client=Github(self.github_token)
         try:
             repository = self.github_client.get_repo(repo)
             embed = nextcord.Embed(
-                title=f"{repository.name} - GitHub Repository Info",
+                title=f"{repository.name} - GitLab Repository Info",
                 description=repository.description or "No description provided.",
                 color=nextcord.Color.gold(),
                 timestamp=interaction.created_at
@@ -38,4 +42,4 @@ class Github_basic(commands.Cog):
             
 # Async setup function to add the cog to the bot
 def setup(bot):
-    bot.add_cog(Github_basic(bot))
+    bot.add_cog(Gitlab_basic(bot))
