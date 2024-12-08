@@ -1,48 +1,80 @@
 import nextcord
-from nextcord.ext import commands, tasks
-
+from nextcord.ext import commands
 from DBConnect import Getdb
 
 class Gitlab_setup(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.DB=Getdb("GitlabDB")
-        self.collection=self.DB["UserInfo"]
+    """
+    A Cog for managing GitLab token setup.
+    Provides commands to set up, check, and remove GitLab tokens for a user.
+    """
 
-    @nextcord.slash_command(name="gitlab-setup", description="Collects your gitlab token for usage")
+    def __init__(self, bot):
+        """
+        Initializes the Gitlab_setup Cog.
+
+        Args:
+            bot (commands.Bot): The bot instance.
+        """
+        self.bot = bot
+        self.DB = Getdb("GitlabDB")
+        self.collection = self.DB["UserInfo"]
+
+    @nextcord.slash_command(name="gitlab-setup", description="Collects your GitLab token for usage")
     async def gitlab_setup(self, interaction: nextcord.Interaction, git_token: str):
-        """Display information about a specific GitHub repository."""
+        """
+        Stores the user's GitLab token in the database.
+
+        Args:
+            interaction (nextcord.Interaction): The interaction context.
+            git_token (str): The user's GitLab token.
+        """
         try:
-            result=self.collection.insert_one({"user":interaction.user.name,"Token":git_token})
-            await interaction.response.send_message("Your setup is successfull",ephemeral=True)
+            self.collection.insert_one({"user": interaction.user.name, "Token": git_token})
+            await interaction.response.send_message("Your setup is successful.", ephemeral=True)
         except Exception as e:
-            await interaction.response.send_message("Error with setup",ephemeral=True)
+            await interaction.response.send_message("Error with setup.", ephemeral=True)
             print(e)
-        
+
     @nextcord.slash_command(name="gitlab-status", description="Display Setup status")
     async def gitlab_setup_status(self, interaction: nextcord.Interaction):
-        """Display information about a specific GitHub repository."""
+        """
+        Displays the setup status for the user's GitLab token.
+
+        Args:
+            interaction (nextcord.Interaction): The interaction context.
+        """
         try:
-            result=self.collection.find_one({"user":interaction.user.name})
-            if result['Token']:
-                await interaction.response.send_message("Your setup is complete and you are eligible to use the git commands")
+            result = self.collection.find_one({"user": interaction.user.name})
+            if result and result.get('Token'):
+                await interaction.response.send_message("Your setup is complete, and you are eligible to use GitLab commands.")
             else:
-                await interaction.response.send_message("You haven't setup your gitlab-token for accessing ur gitlab please use /gitlab-setup and set it")
+                await interaction.response.send_message("You haven't set up your GitLab token. Please use /gitlab-setup to set it up.")
         except Exception as e:
-            await interaction.response.send_message("Error trying to fetch details",ephemeral=True)
-    
-    @nextcord.slash_command(name="gitlab-setup-remove", description="Remove your Information if u do not plan to use this commands anymore")
+            await interaction.response.send_message("Error trying to fetch details.", ephemeral=True)
+
+    @nextcord.slash_command(name="gitlab-setup-remove", description="Remove your information if you no longer plan to use GitLab commands")
     async def gitlab_setup_remove(self, interaction: nextcord.Interaction):
-        """Display information about a specific GitHub repository."""
+        """
+        Removes the user's GitLab token information from the database.
+
+        Args:
+            interaction (nextcord.Interaction): The interaction context.
+        """
         try:
-            result=self.collection.delete_one({"user":interaction.user.name})
-            if result.deleted_count==1:
-                await interaction.response.send_message("Your gitlab token information has been removed",ephemeral=True)
+            result = self.collection.delete_one({"user": interaction.user.name})
+            if result.deleted_count == 1:
+                await interaction.response.send_message("Your GitLab token information has been removed.", ephemeral=True)
             else:
-                await interaction.response.send_message("Your gitlab token information does not exist with us",ephemeral=True)
+                await interaction.response.send_message("Your GitLab token information does not exist in our records.", ephemeral=True)
         except Exception as e:
-            await interaction.response.send_message("Error with setup",ephemeral=True)
+            await interaction.response.send_message("Error with setup.", ephemeral=True)
             print(e)
-# Async setup function to add the cog to the bot
+
 def setup(bot):
+    """
+    Adds the Gitlab_setup Cog to the bot.
+
+    Args:
+        bot (commands.Bot): The bot instance.
+    """
     bot.add_cog(Gitlab_setup(bot))

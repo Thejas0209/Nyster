@@ -4,35 +4,55 @@ import os
 from dotenv import load_dotenv
 import asyncio
 
-# Load environment variables
+
 load_dotenv()
 
-# Create a bot instance with the command prefix "!"
-bot = commands.Bot(command_prefix='!', intents=nextcord.Intents.all())
+# Initialize the bot with the desired command prefix and intents
+bot = commands.Bot(
+    command_prefix='!',  
+    intents=nextcord.Intents.all()  
+)
 
-# Event to indicate when the bot is ready
 @bot.event
 async def on_ready():
+    """
+    Sets the bot's status and activity when it is ready.
+    This method is triggered automatically after the bot successfully connects to Discord.
+    """
     await bot.change_presence(
-        activity=nextcord.Activity(type=nextcord.ActivityType.listening, name="Excessive Phonk"),
-        status=nextcord.Status.do_not_disturb
+        activity=nextcord.Activity(
+            type=nextcord.ActivityType.listening,  
+            name="Excessive Phonk"  
+        ),
+        status=nextcord.Status.do_not_disturb  
     )
-    print(f'{bot.user.name} connected to Discord')
+    print(f'{bot.user.name} connected to Discord')  
 
-# Function to load Cogs from the "cogs" folder
+
 def load_cogs():
-    for filename in os.listdir('./cogs'):
-        if filename.endswith('.py'):
-            bot.load_extension(f'cogs.{filename[:-3]}')
+    """
+    Dynamically loads all Python files from the 'cogs' folder as bot extensions (Cogs).
+    Each file in the folder must define a valid Cog class.
+    """
+    for filename in os.listdir('./cogs'):  
+        if filename.endswith('.py'):  
+            bot.load_extension(f'cogs.{filename[:-3]}')  
 
-# Main function to run the bot
+
 async def main():
+    """
+    Main function to initialize the bot, load extensions, and start the bot instance.
+    The bot token is retrieved from environment variables.
+    """
     load_cogs()  
-    await bot.start(os.getenv('Discord_Token'))
+    await bot.start(os.getenv('Discord_Token')) 
 
-# Run the main function
+
 if __name__ == "__main__":
+    """
+    Run the bot using asyncio. Handles cleanup and shutdown on manual interruption.
+    """
     try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
+        asyncio.run(main()) 
+    except KeyboardInterrupt:  
         print("Bot has been stopped manually.")

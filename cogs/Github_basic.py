@@ -4,18 +4,32 @@ from github import Github
 from DBConnect import Getdb
 
 class GithubBasic(commands.Cog):
+    """
+    A Cog that provides GitHub integration commands for fetching and displaying repository information.
+    """
+
     def __init__(self, bot):
+        """
+        Initializes the GithubBasic Cog.
+
+        Args:
+            bot (commands.Bot): The bot instance to which this Cog belongs.
+        """
         self.bot = bot
         self.DB = Getdb("GithubDB")
         self.github_token = None
         self.github_client = None
         
-    # Display Repository Information
     @nextcord.slash_command(name="github-repo-info", description="Display repository information")
     async def github_repo_info(self, interaction: nextcord.Interaction, repo: str):
-        """Display information about a specific GitHub repository."""
+        """
+        Slash command to display information about a specific GitHub repository.
+
+        Args:
+            interaction (nextcord.Interaction): The interaction context from the user.
+            repo (str): The full name of the repository (e.g., "owner/repo").
+        """
         try:
-            # Fetch the GitHub token from the database
             user_record = self.DB["UserInfo"].find_one({"user": interaction.user.name})
             if not user_record or "Token" not in user_record:
                 await interaction.response.send_message("GitHub token not found. Please set up your token using /github-setup.")
@@ -23,11 +37,8 @@ class GithubBasic(commands.Cog):
             
             self.github_token = user_record["Token"]
             self.github_client = Github(self.github_token)
-            
-            # Fetch repository details
             repository = self.github_client.get_repo(repo)
             
-            # Create an embed for repository details
             embed = nextcord.Embed(
                 title=f"{repository.name} - GitHub Repository Info",
                 description=repository.description or "No description provided.",
@@ -48,11 +59,15 @@ class GithubBasic(commands.Cog):
             embed.add_field(name="Clone URL", value=repository.clone_url, inline=False)
             embed.add_field(name="Created On", value=repository.created_at.strftime("%Y-%m-%d"), inline=True)
 
-            # Send the embed as a response
             await interaction.response.send_message(embed=embed)
         except Exception as e:
             await interaction.response.send_message(f"Command failed with error: {str(e)}")
 
-# Async setup function to add the cog to the bot
 def setup(bot):
+    """
+    Adds the GithubBasic Cog to the bot.
+
+    Args:
+        bot (commands.Bot): The bot instance to which the Cog will be added.
+    """
     bot.add_cog(GithubBasic(bot))
