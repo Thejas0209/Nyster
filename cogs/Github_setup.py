@@ -1,15 +1,13 @@
 import nextcord
 from nextcord.ext import commands
 
-from DBConnect import Getdb
-
 class Github_setup(commands.Cog):
     """
     A Cog for managing GitHub token setup for bot commands.
     Provides commands to set up, check, and remove GitHub tokens for users.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, db):
         """
         Initializes the Github_setup Cog.
 
@@ -17,8 +15,10 @@ class Github_setup(commands.Cog):
             bot (commands.Bot): The bot instance.
         """
         self.bot = bot
-        self.DB = Getdb("GithubDB")  # Connect to the MongoDB database
-        self.collection = self.DB["UserInfo"]  # Collection for storing user information
+        self.db= db  
+        self.github_token = None
+        self.github_client = None
+        self.collection = self.db["UserInfo"] 
 
     @nextcord.slash_command(name="github-setup", description="Collects your GitHub token for usage.")
     async def github_setup(self, interaction: nextcord.Interaction, git_token: str):
@@ -80,12 +80,6 @@ class Github_setup(commands.Cog):
             await interaction.response.send_message("Error during removal.", ephemeral=True)
             print(e)
 
-# Async setup function to add the cog to the bot
-def setup(bot):
-    """
-    Adds the Github_setup Cog to the bot.
 
-    Args:
-        bot (commands.Bot): The bot instance.
-    """
-    bot.add_cog(Github_setup(bot))
+def setup(bot,db):
+    bot.add_cog(Github_setup(bot,db))

@@ -1,7 +1,6 @@
 import nextcord
 from nextcord.ext import commands, tasks
 from github import Github
-from DBConnect import Getdb
 
 class Github_releases(commands.Cog):
     """
@@ -10,7 +9,7 @@ class Github_releases(commands.Cog):
     to check for new releases.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, db):
         """
         Initializes the Github_releases Cog.
 
@@ -18,9 +17,11 @@ class Github_releases(commands.Cog):
             bot (commands.Bot): The bot instance.
         """
         self.bot = bot
-        self.DB = Getdb("GithubDB")  # Connect to the MongoDB database
-        self.release_trackers_collection = self.DB["ReleaseTrackers"]  # Collection for release tracking
-        self.check_new_releases.start()  # Start the periodic task
+        self.db= db
+        self.github_token = None
+        self.github_client = None
+        self.release_trackers_collection = self.db["ReleaseTrackers"] 
+        self.check_new_releases.start()  
 
     async def get_github_token(self, user_name):
         """
@@ -35,7 +36,7 @@ class Github_releases(commands.Cog):
         Raises:
             ValueError: If no token is found for the user.
         """
-        user_info = self.DB["UserInfo"].find_one({"user": user_name})
+        user_info = self.db["UserInfo"].find_one({"user": user_name})
         if user_info and "Token" in user_info:
             return user_info["Token"]
         else:
@@ -132,11 +133,5 @@ class Github_releases(commands.Cog):
         else:
             await interaction.response.send_message(f"`{repo}` is not currently being tracked.")
             
-def setup(bot):
-    """
-    Adds the Github_releases Cog to the bot.
-
-    Args:
-        bot (commands.Bot): The bot instance.
-    """
-    bot.add_cog(Github_releases(bot))
+def setup(bot,db):
+    bot.add_cog(Github_releases(bot,db))

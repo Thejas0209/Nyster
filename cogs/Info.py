@@ -66,10 +66,4 @@ class Info(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
 def setup(bot):
-    """
-    Adds the Info Cog to the bot.
-
-    Args:
-        bot (commands.Bot): The bot instance.
-    """
     bot.add_cog(Info(bot))

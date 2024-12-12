@@ -14,7 +14,7 @@ class Github_commits(commands.Cog):
     and stop tracking repositories.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, db):
         """
         Initializes the Github_commits Cog.
 
@@ -22,11 +22,11 @@ class Github_commits(commands.Cog):
             bot (commands.Bot): The bot instance to which this Cog belongs.
         """
         self.bot = bot
-        self.DB = Getdb("GithubDB")  # Connect to the MongoDB database
-        self.commits_trackers_collection = self.DB["CommitTrackers"]  # Collection for tracking commit information
+        self.db = db 
+        self.commits_trackers_collection = self.db["CommitTrackers"]  
         self.github_token = None
         self.github_client = None
-        self.check_new_commits.start()  # Start the periodic task
+        self.check_new_commits.start()  
 
     async def get_github_token(self, user_name):
         """
@@ -41,7 +41,7 @@ class Github_commits(commands.Cog):
         Raises:
             ValueError: If no token is found for the user.
         """
-        user_info = self.DB["UserInfo"].find_one({"user": user_name})
+        user_info = self.db["UserInfo"].find_one({"user": user_name})
         if user_info and "Token" in user_info:
             return user_info["Token"]
         else:
@@ -159,11 +159,5 @@ class Github_commits(commands.Cog):
         """
         await self.bot.wait_until_ready()
 
-def setup(bot):
-    """
-    Adds the Github_commits Cog to the bot.
-
-    Args:
-        bot (commands.Bot): The bot instance to which the Cog will be added.
-    """
-    bot.add_cog(Github_commits(bot))
+def setup(bot,db):
+    bot.add_cog(Github_commits(bot,db))

@@ -93,12 +93,5 @@ class Utility(commands.Cog):
         embed = nextcord.Embed(title=f'You rolled {rand}', color=nextcord.Color.dark_gold())
         await interaction.response.send_message(embed=embed)
 
-# Function to setup the cog
 def setup(bot):
-    """
-    Adds the Utility cog to the bot.
-
-    Parameters:
-    - bot (commands.Bot): The bot instance.
-    """
     bot.add_cog(Utility(bot))

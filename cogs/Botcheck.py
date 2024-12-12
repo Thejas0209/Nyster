@@ -27,13 +27,6 @@ class Botcheck(commands.Cog):
         """
         bot_ping = abs(self.bot.latency * 100)
         await interaction.response.send_message(f"Current ping is: {bot_ping}")
-    
 
 def setup(bot):
-    """
-    Adds the Botcheck Cog to the bot.
-
-    Args:
-        bot (commands.Bot): The bot instance to which the Cog will be added.
-    """
     bot.add_cog(Botcheck(bot))

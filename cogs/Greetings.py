@@ -34,12 +34,5 @@ class Greetings(commands.Cog):
         """
         await ctx.send(f'Goodbye, {ctx.author.name}!')
 
-# Function to setup the cog
 def setup(bot):
-    """
-    Adds the Greetings Cog to the bot.
-
-    Args:
-        bot (commands.Bot): The bot instance.
-    """
     bot.add_cog(Greetings(bot))

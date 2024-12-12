@@ -1,14 +1,12 @@
 import nextcord
 from nextcord.ext import commands
-from DBConnect import Getdb
-
 class Gitlab_setup(commands.Cog):
     """
     A Cog for managing GitLab token setup.
     Provides commands to set up, check, and remove GitLab tokens for a user.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, db):
         """
         Initializes the Gitlab_setup Cog.
 
@@ -16,8 +14,10 @@ class Gitlab_setup(commands.Cog):
             bot (commands.Bot): The bot instance.
         """
         self.bot = bot
-        self.DB = Getdb("GitlabDB")
-        self.collection = self.DB["UserInfo"]
+        self.db= db
+        self.gitlab_token = None
+        self.gitlab_client = None
+        self.collection = self.db["UserInfo"]
 
     @nextcord.slash_command(name="gitlab-setup", description="Collects your GitLab token for usage")
     async def gitlab_setup(self, interaction: nextcord.Interaction, git_token: str):
@@ -69,12 +69,5 @@ class Gitlab_setup(commands.Cog):
         except Exception as e:
             await interaction.response.send_message("Error with setup.", ephemeral=True)
             print(e)
-
-def setup(bot):
-    """
-    Adds the Gitlab_setup Cog to the bot.
-
-    Args:
-        bot (commands.Bot): The bot instance.
-    """
-    bot.add_cog(Gitlab_setup(bot))
+def setup(bot,db):
+    bot.add_cog(Gitlab_setup(bot,db))
