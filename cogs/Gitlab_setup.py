@@ -1,5 +1,9 @@
 import nextcord
 from nextcord.ext import commands
+import os 
+from dotenv import load_dotenv
+load_dotenv()
+
 class Gitlab_setup(commands.Cog):
     """
     A Cog for managing GitLab token setup.
@@ -17,7 +21,7 @@ class Gitlab_setup(commands.Cog):
         self.db= db
         self.gitlab_token = None
         self.gitlab_client = None
-        self.collection = self.db["UserInfo"]
+        self.collection = self.db[os.getenv("Table_users")]
 
     @nextcord.slash_command(name="gitlab-setup", description="Collects your GitLab token for usage")
     async def gitlab_setup(self, interaction: nextcord.Interaction, git_token: str):

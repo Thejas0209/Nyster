@@ -34,7 +34,7 @@ def Getdb(DB_Name):
     """
     Establishes a connection to the MongoDB database and returns the database object.
     """
-    uri = f"mongodb+srv://{os.getenv('MongoDB_User')}:{os.getenv('MongoDB_pass')}@nyster.4uqrj.mongodb.net/?retryWrites=true&w=majority&appName=Nyster"
+    uri =os.getenv("Mongo_DB_Url")
 
     try:
 
@@ -55,8 +55,9 @@ async def setup_db():
     Initialize the database connection using the Getdb function.
     """
     global db_github, db_gitlab 
-    db_github = Getdb("GithubDB")
-    db_gitlab = Getdb("GitlabDB")
+    db_github = Getdb(os.getenv("Github_Db"))
+    db_gitlab = Getdb(os.getenv("Gitlab_Db"))
+
 
 def load_cogs():
     """

@@ -1,6 +1,9 @@
 import nextcord
 from nextcord.ext import commands
 from gitlab import Gitlab
+import os 
+from dotenv import load_dotenv
+load_dotenv()
 
 class Gitlab_basic(commands.Cog):
     """
@@ -30,7 +33,7 @@ class Gitlab_basic(commands.Cog):
             repo (str): The repository path (e.g., "owner/repo").
         """
         try:
-            user_record = self.db["UserInfo"].find_one({"user": interaction.user.name})
+            user_record = self.db[os.getenv("Table_users")].find_one({"user": interaction.user.name})
             if not user_record or "Token" not in user_record:
                 await interaction.response.send_message("GitLab token not found. Please set up your token using the setup command.")
                 return

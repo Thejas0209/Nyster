@@ -3,8 +3,6 @@ from nextcord.ext import commands, tasks
 from github import Github
 import os
 from dotenv import load_dotenv
-from DBConnect import Getdb
-
 load_dotenv()
 
 class Github_commits(commands.Cog):
@@ -23,7 +21,7 @@ class Github_commits(commands.Cog):
         """
         self.bot = bot
         self.db = db 
-        self.commits_trackers_collection = self.db["CommitTrackers"]  
+        self.commits_trackers_collection = self.db[os.getenv("Table_commits_trackers")]  
         self.github_token = None
         self.github_client = None
         self.check_new_commits.start()  
@@ -41,7 +39,7 @@ class Github_commits(commands.Cog):
         Raises:
             ValueError: If no token is found for the user.
         """
-        user_info = self.db["UserInfo"].find_one({"user": user_name})
+        user_info = self.db[os.getenv("Table_users")].find_one({"user": user_name})
         if user_info and "Token" in user_info:
             return user_info["Token"]
         else:
@@ -106,7 +104,7 @@ class Github_commits(commands.Cog):
         except Exception as e:
             await interaction.response.send_message(f"Failed to set up commit tracking: {str(e)}")
 
-    @tasks.loop(hours=24)
+    @tasks.loop(seconds=5)
     async def check_new_commits(self):
         """
         Periodically checks for new commits in tracked repositories and sends updates to the respective channels.

@@ -1,5 +1,8 @@
 import nextcord
 from nextcord.ext import commands
+import os 
+from dotenv import load_dotenv
+load_dotenv()
 
 class Github_setup(commands.Cog):
     """
@@ -18,7 +21,7 @@ class Github_setup(commands.Cog):
         self.db= db  
         self.github_token = None
         self.github_client = None
-        self.collection = self.db["UserInfo"] 
+        self.collection = self.db[os.getenv("Table_users")] 
 
     @nextcord.slash_command(name="github-setup", description="Collects your GitHub token for usage.")
     async def github_setup(self, interaction: nextcord.Interaction, git_token: str):

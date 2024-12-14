@@ -1,6 +1,9 @@
 import nextcord
 from nextcord.ext import commands, tasks
 from github import Github
+import os 
+from dotenv import load_dotenv
+load_dotenv()
 
 class Github_releases(commands.Cog):
     """
@@ -20,7 +23,7 @@ class Github_releases(commands.Cog):
         self.db= db
         self.github_token = None
         self.github_client = None
-        self.release_trackers_collection = self.db["ReleaseTrackers"] 
+        self.release_trackers_collection = self.db[os.getenv("Table_releases_trackers")] 
         self.check_new_releases.start()  
 
     async def get_github_token(self, user_name):
@@ -36,7 +39,7 @@ class Github_releases(commands.Cog):
         Raises:
             ValueError: If no token is found for the user.
         """
-        user_info = self.db["UserInfo"].find_one({"user": user_name})
+        user_info = self.db[os.getenv("Table_users")].find_one({"user": user_name})
         if user_info and "Token" in user_info:
             return user_info["Token"]
         else:
